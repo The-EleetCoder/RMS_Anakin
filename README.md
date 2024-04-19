@@ -43,5 +43,7 @@ This project is a railway management system similar to IRCTC, where users can ch
  ![image](https://github.com/The-EleetCoder/RMS_Anakin/assets/87275213/ee1014de-5d0c-4213-b81f-af5992999cc7)
 
 ## Testing 
-I have attached a postman collection file named ```rms_anakin.postman_collection```. Import this file in postman for testing all the API endpoints.
+I have attached a postman collection file named ```rms_anakin.postman_collection```. Import this file in postman for testing all the API endpoin
 
+## GitHub Repo Link: 
+```https://github.com/The-EleetCoder/RMS_Anakin```
