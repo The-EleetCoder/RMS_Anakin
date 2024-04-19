@@ -6,7 +6,7 @@ require("dotenv").config();
 exports.signup = async (req, res) => {
   try {
     const { email, password, apiKey } = req.body;
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ where: {email} });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({where:{ email }});
 
     if (!user) {
       return res.status(401).json({
@@ -72,7 +72,7 @@ exports.login = async (req, res) => {
 
     const payload = {
       email: user.email,
-      id: user._id,
+      id: user.id,
       role: user.role,
     };
 

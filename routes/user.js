@@ -1,7 +1,7 @@
 const express = require("express");
-const Booking = require('../models/Booking');
-const User = require('../models/User');
-const Train = require('../models/Train');
+const Booking = require("../models/Booking");
+const User = require("../models/User");
+const Train = require("../models/Train");
 
 const router = express.Router();
 
@@ -19,8 +19,12 @@ router.post("/trains", auth, isAdmin, async (req, res) => {
       source,
       destination,
       totalSeats,
-    }).save();
-    res.json({ message: "Train added successfully" });
+    });
+    res.json({
+      success: true,
+      data: newTrain,
+      message: "Train added successfully",
+    });
   } catch (error) {
     console.error("Error in adding train:", error);
     res.status(500).json({ error: "An error occurred while adding train" });
@@ -28,41 +32,62 @@ router.post("/trains", auth, isAdmin, async (req, res) => {
 });
 
 // Get seat availability
-router.get('/trains', auth, async (req, res) => {
-    try {
-        const { source, destination } = req.query;
-        const trains = await Train.find({ where: { source, destination } });
-        res.json(trains);
-    } catch (error) {
-        console.error("Error in getting seat availability:", error);
-        res.status(500).json({ error: "An error occurred while fetching seat availability" });
-    }
+router.get("/trains", auth, async (req, res) => {
+  try {
+    const { source, destination } = req.body;
+    const trains = await Train.findOne({ where: { source, destination } });
+    res.json(trains);
+  } catch (error) {
+    console.error("Error in getting seat availability:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching seat availability" });
+  }
 });
 
 // Book a seat
-router.post('/bookings', auth, async (req, res) => {
-    try {
-        const { trainId } = req.body;
-        const booking = await Booking.create({ userId: req.user.id, trainId, status: 'booked' }).save();
-        res.json({ message: "Seat booked successfully" });
-    } catch (error) {
-        console.error("Error in booking seat:", error);
-        res.status(500).json({ error: "An error occurred while booking seat" });
+router.post("/bookings", auth, async (req, res) => {
+  try {
+    const { trainId } = req.body;
+    const totalBookings = await Booking.count({ where: { trainId } });
+    const { totalSeats } = await Train.findOne({ where: { id: trainId } });
+    if (totalSeats - totalBookings <= 0) {
+      return res.status(400).json({ error: "No seats available" });
     }
+    const booking = await Booking.create({
+      UserId: req.user.id,
+      TrainId: trainId,
+      status: "booked",
+    });
+    res.json({
+      success: true,
+      data: booking,
+      message: "Seat booked successfully",
+    });
+  } catch (error) {
+    console.error("Error in booking seat:", error);
+    res.status(500).json({ error: "An error occurred while booking seat" });
+  }
 });
 
 // Get specific booking details
-router.get('/bookings/:bookingId', auth, async (req, res) => {
-    try {
-        const booking = await Booking.findOne(req.params.bookingId);
-        if (!booking) return res.status(404).json({ error: "Booking not found" });
-        if (booking.userId !== req.user.id) return res.sendStatus(403);
+router.get("/bookings/:bookingId", auth, async (req, res) => {
+  try {
+    const booking = await Booking.findOne({
+      where: { id: req.params.bookingId },
+    });
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+    if (booking.UserId !== req.user.id) return res.sendStatus(403);
 
-        res.json(booking);
-    } catch (error) {
-        console.error("Error in getting booking details:", error);
-        res.status(500).json({ error: "An error occurred while fetching booking details" });
-    }
+    res.status(200).json({
+      data: booking,
+    });
+  } catch (error) {
+    console.error("Error in getting booking details:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching booking details" });
+  }
 });
 
 module.exports = router;
