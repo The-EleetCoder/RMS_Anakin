@@ -21,8 +21,4 @@ const Train = sequelize.define("Train", {
   },
 });
 
-(async () => {
-  await sequelize.sync({ force: true });
-})();
-
 module.exports = Train;

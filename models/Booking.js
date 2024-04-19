@@ -22,8 +22,4 @@ Booking.belongsTo(User);
 Train.hasMany(Booking);
 Booking.belongsTo(Train);
 
-(async () => {
-  await sequelize.sync({ force: true });
-})();
-
 module.exports = Booking;

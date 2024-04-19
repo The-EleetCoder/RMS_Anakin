@@ -9,6 +9,9 @@ app.use(express.json());
 
 dbConnect();
 
+const user = require("./routes/user");
+app.use("/api/v1", user);
+
 app.listen(PORT,()=>{
     console.log(`app listening on port ${PORT}`);
 });

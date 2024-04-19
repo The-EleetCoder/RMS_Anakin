@@ -7,9 +7,10 @@ const User = sequelize.define("User", {
     primaryKey: true,
     autoIncrement: true,
   },
-  username: {
+  email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true
   },
   password: {
     type: DataTypes.STRING,
@@ -21,9 +22,5 @@ const User = sequelize.define("User", {
     allowNull: false,
   },
 });
-
-(async () => {
-  await sequelize.sync({ force: true });
-})();
 
 module.exports = User;
