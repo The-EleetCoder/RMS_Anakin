@@ -19,6 +19,7 @@ router.post("/trains", auth, isAdmin, async (req, res) => {
       source,
       destination,
       totalSeats,
+      seatsLeft: totalSeats,
     });
     res.json({
       success: true,
@@ -31,11 +32,33 @@ router.post("/trains", auth, isAdmin, async (req, res) => {
   }
 });
 
+// update existing train info (Admin only)
+router.post("/trains/:trainId", auth, isAdmin, async (req, res) => {
+  try {
+    const { trainId } = req.params;
+    const { totalSeats } = req.body;
+    const train = await Train.findOne({ where: { id: trainId } });
+    const oldTotalSeats = train.totalSeats;
+    const updatedTrain = await train.update({
+      totalSeats,
+      seatsLeft: train.seatsLeft + totalSeats - oldTotalSeats,
+    });
+    res.json({
+      success: true,
+      data: updatedTrain,
+      message: "Train updated successfully",
+    });
+  } catch (error) {
+    console.error("Error in updating train:", error);
+    res.status(500).json({ error: "An error occurred while updating train" });
+  }
+});
+
 // Get seat availability
 router.get("/trains", auth, async (req, res) => {
   try {
     const { source, destination } = req.body;
-    const trains = await Train.findOne({ where: { source, destination } });
+    const trains = await Train.findAll({ where: { source, destination } });
     res.json(trains);
   } catch (error) {
     console.error("Error in getting seat availability:", error);
@@ -49,9 +72,8 @@ router.get("/trains", auth, async (req, res) => {
 router.post("/bookings", auth, async (req, res) => {
   try {
     const { trainId } = req.body;
-    const totalBookings = await Booking.count({ where: { trainId } });
-    const { totalSeats } = await Train.findOne({ where: { id: trainId } });
-    if (totalSeats - totalBookings <= 0) {
+    const train = await Train.findOne({ where: { id: trainId } });
+    if (train.seatsLeft <= 0) {
       return res.status(400).json({ error: "No seats available" });
     }
     const booking = await Booking.create({
@@ -59,6 +81,8 @@ router.post("/bookings", auth, async (req, res) => {
       TrainId: trainId,
       status: "booked",
     });
+
+    await train.update({ seatsLeft: train.seatsLeft - 1 });
     res.json({
       success: true,
       data: booking,

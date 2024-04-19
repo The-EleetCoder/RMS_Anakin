@@ -19,6 +19,10 @@ const Train = sequelize.define("Train", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  seatsLeft: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 });
 
 module.exports = Train;
