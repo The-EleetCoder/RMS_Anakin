@@ -4,9 +4,16 @@
   "description": "��#\u0000 \u0000R\u0000M\u0000S\u0000_\u0000A\u0000n\u0000a\u0000k\u0000i\u0000n\u0000\r\u0000 \u0000",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.6",
+    "nodemon": "^3.1.0",
+    "sequelize": "^6.37.3"
+  }
 }
