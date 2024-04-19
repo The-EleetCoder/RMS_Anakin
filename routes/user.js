@@ -2,7 +2,7 @@ const express = require("express");
 const Booking = require("../models/Booking");
 const User = require("../models/User");
 const Train = require("../models/Train");
-const { sequelize } = require('../config/db');
+const { sequelize } = require("../config/db");
 const router = express.Router();
 
 const { login, signup } = require("../controllers/Auth");
@@ -74,16 +74,23 @@ router.post("/bookings", auth, async (req, res) => {
 
   try {
     const { trainId } = req.body;
-    const train = await Train.findOne({ where: { id: trainId }, transaction: t, lock: t.LOCK.UPDATE });
+    const train = await Train.findOne({
+      where: { id: trainId },
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
     if (train.seatsLeft <= 0) {
       return res.status(400).json({ error: "No seats available" });
     }
 
-    const booking = await Booking.create({
-      UserId: req.user.id,
-      TrainId: trainId,
-      status: "booked",
-    }, { transaction: t });
+    const booking = await Booking.create(
+      {
+        UserId: req.user.id,
+        TrainId: trainId,
+        status: "booked",
+      },
+      { transaction: t }
+    );
 
     await train.update({ seatsLeft: train.seatsLeft - 1 }, { transaction: t });
 
